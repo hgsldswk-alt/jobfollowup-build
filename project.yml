@@ -1,0 +1,168 @@
+name: JobFollowUp
+options:
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  knownRegions: [en, zh-Hans, zh-Hant, ja]
+settings:
+  base:
+    APP_ID: com.hgsldswk.jobfollowup
+    APP_STORE_ID: "6839768316"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  JobFollowUp:
+    type: application
+    platform: iOS
+    sources: [JobFollowUp, Shared]
+    dependencies:
+      - target: JobFollowUpWidget
+        embed: true
+      - target: JobFollowUpShare
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID)
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: JobFollowUp AppStore
+    entitlements:
+      path: JobFollowUp/JobFollowUp.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.hgsldswk.jobfollowup]
+        keychain-access-groups: [$(AppIdentifierPrefix)com.hgsldswk.jobfollowup.trial-anchor]
+    info:
+      path: JobFollowUp/Info.plist
+      properties:
+        CFBundleDisplayName: Follow Ups
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen:
+          UIColorName: Paper
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+        APP_STORE_ID: $(APP_STORE_ID)
+        TrialKeychainAccessGroup: $(AppIdentifierPrefix)com.hgsldswk.jobfollowup.trial-anchor
+        CFBundleURLTypes:
+          - CFBundleURLName: com.hgsldswk.jobfollowup.due
+            CFBundleURLSchemes: [jobfollowup]
+  JobFollowUpWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - JobFollowUpWidget
+      - path: Shared
+        excludes: [JobEditor.swift, JobCSV.swift, ProgressCard.swift, Reminders.swift]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID).widget
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: JobFollowUp Widget AppStore
+    entitlements:
+      path: JobFollowUpWidget/JobFollowUpWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.hgsldswk.jobfollowup]
+    info:
+      path: JobFollowUpWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Follow Ups
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+  JobFollowUpShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: JobFollowUpShare
+        excludes: [SharePreprocessor.js]
+      - path: JobFollowUpShare/SharePreprocessor.js
+        buildPhase: resources
+      - path: Shared
+        excludes: [JobCSV.swift, ProgressCard.swift]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID).share
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: JobFollowUp Share AppStore
+    entitlements:
+      path: JobFollowUpShare/JobFollowUpShare.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.hgsldswk.jobfollowup]
+        keychain-access-groups: [$(AppIdentifierPrefix)com.hgsldswk.jobfollowup.trial-anchor]
+    info:
+      path: JobFollowUpShare/Info.plist
+      properties:
+        CFBundleDisplayName: Follow Ups
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        TrialKeychainAccessGroup: $(AppIdentifierPrefix)com.hgsldswk.jobfollowup.trial-anchor
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionJavaScriptPreprocessingFile: SharePreprocessor
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsWebPageWithMaxCount: 1
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+  JobFollowUpTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - JobFollowUpTests
+      - path: Shared
+        excludes: [Design.swift, JobEditor.swift, PrivacyInfo.xcprivacy]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID).tests
+        GENERATE_INFOPLIST_FILE: YES
+  JobFollowUpUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [JobFollowUpUITests]
+    dependencies:
+      - target: JobFollowUp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_ID).uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: JobFollowUp
+schemes:
+  JobFollowUp:
+    build:
+      targets:
+        JobFollowUp: all
+        JobFollowUpTests: [test]
+    test:
+      config: Debug
+      targets: [JobFollowUpTests]
+  JobFollowUpUI:
+    build:
+      targets:
+        JobFollowUp: all
+        JobFollowUpUITests: [test]
+    test:
+      config: Debug
+      targets: [JobFollowUpUITests]
